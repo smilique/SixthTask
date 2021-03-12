@@ -1,0 +1,20 @@
+{
+  "lots" : [
+    {
+      "id": 1,
+      "startPrice": 30,
+      "sold": false
+    },
+    {
+      "id": 2,
+      "startPrice": 450,
+      "sold": false
+    },
+    {
+      "id": 3,
+      "startPrice": 76,
+      "sold": false
+    }
+  ]
+}
+
