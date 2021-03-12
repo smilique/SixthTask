@@ -8,39 +8,47 @@ public class Lot implements Runnable{
     private BigDecimal startPrice;
     private boolean sold;
     private BigDecimal price;
+    private double quality;
 
-    public  Lot() {
+    public Lot() {
     }
 
+    public double getQuality() {
+        return quality;
+    }
 
-    public void setId(int id) {
+    public synchronized void setQuality(double quality) {
+        this.quality = quality;
+    }
+
+    public synchronized void setId(int id) {
         this.id = id;
     }
 
-    public void setStartPrice(BigDecimal startPrice) {
+    public synchronized void setStartPrice(BigDecimal startPrice) {
         this.startPrice = startPrice;
         this.price = startPrice;
     }
 
-    public void setSold(boolean sold) {
+    public synchronized void setSold(boolean sold) {
         this.sold = sold;
     }
 
-    public void setPrice(BigDecimal price) {
+    public synchronized void setPrice(BigDecimal price) {
         if (price.compareTo(this.price) > 0) {
             this.price = price;
         }
     }
 
-    public int getId() {
+    public synchronized int getId() {
         return id;
     }
 
-    public boolean isSold() {
+    public synchronized boolean isSold() {
         return sold;
     }
 
-    public BigDecimal getPrice() {
+    public synchronized BigDecimal getPrice() {
         return price;
     }
 
@@ -58,8 +66,10 @@ public class Lot implements Runnable{
     public String toString() {
         return "Lot{" +
                 "id=" + id +
-                ", strartPrice=" + startPrice +
+                ", startPrice=" + startPrice +
                 ", sold=" + sold +
+                ", price=" + price +
+                ", value=" + quality +
                 '}';
     }
 }
