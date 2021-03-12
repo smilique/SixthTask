@@ -34,21 +34,21 @@ public class Auction {
     }
 
     private List<Participant> participants;
-    private Map<Integer,Participant> buyers;
+//    private Map<Integer,Participant> buyers;
+//
+//    public void addBuyer(Participant participant) {
+//        int id = participant.getId();
+//        buyers.put(id,participant);
+//    }
 
-    public void addBuyer(Participant participant) {
-        int id = participant.getId();
-        buyers.put(id,participant);
-    }
+    //public void removeBuyer(Participant participant) {
+    //    int id = participant.getId();
+    //    buyers.remove(id);
+    //}
 
-    public void removeBuyer(Participant participant) {
-        int id = participant.getId();
-        buyers.remove(id);
-    }
-
-    public int totalBuyers() {
-        return buyers.size();
-    }
+    //public int totalBuyers() {
+    //    return buyers.size();
+    //}
 
 
     public void process(Lot lot) throws InterruptedException {
@@ -57,7 +57,6 @@ public class Auction {
         semaphore.acquire();
         lock.lock();
         //lock.tryLock(50L, TimeUnit.MILLISECONDS);
-
         try {
             BigDecimal priceBeforeBidding = lot.getPrice();
             //for (Participant participant1 : participants) {
@@ -65,7 +64,11 @@ public class Auction {
             //}
 
             participants.forEach(participant -> {
-                participant.process(lot);
+                try {
+                    participant.process(lot);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             });
 
             BigDecimal priceAfterBidding = lot.getPrice();

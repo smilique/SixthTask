@@ -2,6 +2,7 @@ package com.epam.training.tasks.sixth;
 
 import java.math.BigDecimal;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 
 public class Participant implements Runnable{
 
@@ -9,23 +10,30 @@ public class Participant implements Runnable{
     private BigDecimal funds;
     private final Random random = new Random();
 
-    public void process(Lot lot) {
-        Auction auction = Auction.getInstance();
-        BigDecimal lotPrice = lot.getPrice();
-        BigDecimal fundsPercent = funds.divide(lotPrice,3);
-        double lotValue = lot.getQuality();
-        double wantToBuy = random.nextDouble();
-        double buyingCriteria = lotValue * wantToBuy;
-        if (buyingCriteria > 0) {
-            if (fundsPercent.compareTo(new BigDecimal("0.7")) > 0) {
-                System.out.println("Patricipant id:" + this.id + " ready to bet lot id: " + lot.getId());
-            } else {
-                System.out.println("Buyers before removal: " + auction.totalBuyers());
-                System.out.println("Patricipant id:" + this.id + " is NOT ready to bet lot id: " + lot.getId());
-                auction.removeBuyer(this);
-                System.out.println("Buyers after removal: " + auction.totalBuyers());
+    public void process(Lot lot) throws InterruptedException {
+//        Semaphore semaphore = new Semaphore(1);
+//        semaphore.acquire();
+//        try {
+            Auction auction = Auction.getInstance();
+            BigDecimal lotPrice = lot.getPrice();
+            BigDecimal fundsPercent = funds.divide(lotPrice,3);
+            double lotValue = lot.getQuality();
+            double wantToBuy = random.nextDouble();
+            double buyingCriteria = lotValue * wantToBuy;
+            if (buyingCriteria > 0) {
+                if (fundsPercent.compareTo(new BigDecimal("0.7")) > 0) {
+                    System.out.println("Patricipant id:" + this.id + " ready to bet lot id: " + lot.getId());
+                } else {
+                    //System.out.println("Buyers before removal: " + auction.totalBuyers());
+                    System.out.println("Patricipant id:" + this.id + " is NOT ready to bet lot id: " + lot.getId());
+                    //auction.removeBuyer(this);
+                    //System.out.println("Buyers after removal: " + auction.totalBuyers());
+                }
             }
-        }
+//        } finally {
+//            semaphore.release();
+       // }
+
 
         //funds.divide(lotPrice,10)
    // if (condition is good) submit currentparticipant to

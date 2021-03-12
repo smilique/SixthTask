@@ -35,7 +35,7 @@ public class Processor {
 
         List<Future<?>> futures = new ArrayList<>();
 
-        ExecutorService executorService = Executors.newFixedThreadPool(lotList.size());
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
 
         lotList.forEach(lot -> {
             Future<?> future = executorService.submit(lot);
