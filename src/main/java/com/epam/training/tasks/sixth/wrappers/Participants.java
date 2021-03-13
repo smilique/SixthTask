@@ -1,4 +1,6 @@
-package com.epam.training.tasks.sixth;
+package com.epam.training.tasks.sixth.wrappers;
+
+import com.epam.training.tasks.sixth.entities.Participant;
 
 import java.util.List;
 

@@ -1,6 +1,9 @@
-package com.epam.training.tasks.sixth;
+package com.epam.training.tasks.sixth.entities;
+
+import com.epam.training.tasks.sixth.Auction;
 
 import java.math.BigDecimal;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 public class Lot implements Runnable {
@@ -42,11 +45,13 @@ public class Lot implements Runnable {
     public synchronized void setSold(boolean sold) {
         this.sold = sold;
     }
-
-    public synchronized void setPrice(BigDecimal price) {
+    Semaphore priceSemaphore = new Semaphore(1);
+    public synchronized void setPrice(BigDecimal price) throws InterruptedException {
+        priceSemaphore.acquire();
         if (price.compareTo(this.price) > 0) {
             this.price = price;
         }
+        priceSemaphore.release();
     }
 
     public synchronized int getId() {

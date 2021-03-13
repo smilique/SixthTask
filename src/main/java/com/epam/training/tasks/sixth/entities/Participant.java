@@ -1,7 +1,8 @@
-package com.epam.training.tasks.sixth;
+package com.epam.training.tasks.sixth.entities;
+
+import com.epam.training.tasks.sixth.Auction;
 
 import java.math.BigDecimal;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 
@@ -9,8 +10,15 @@ public class Participant implements Runnable {
 
     private int id;
     private BigDecimal funds;
+    private boolean interested = true;
 
-    Semaphore semaphore = new Semaphore(1);
+    public boolean isInterested() {
+        return interested;
+    }
+
+    public void setInterested(boolean interested) {
+        this.interested = interested;
+    }
 
     public int getId() {
         return this.id;
@@ -20,22 +28,14 @@ public class Participant implements Runnable {
         this.id = id;
     }
 
-    public void setFunds(BigDecimal funds) throws InterruptedException {
-        semaphore.acquire();
+    public void setFunds(BigDecimal funds) {
         this.funds = funds;
-        semaphore.release();
     }
 
-    Semaphore fundSemaphore = new Semaphore(1);
 
-    public BigDecimal getFunds() throws InterruptedException {
-        fundSemaphore.acquire();
-        try {
+
+    public BigDecimal getFunds() {
             return this.funds;
-        } finally {
-            fundSemaphore.release();
-        }
-
     }
 
     @Override

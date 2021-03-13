@@ -17,12 +17,7 @@
       "startPrice": 76,
       "quality": 0.5,
       "sold": false
-    },
-    {
-      "id": 4,
-      "startPrice": 4000,
-      "quality": 1,
-      "sold": false
     }
   ]
 }
+

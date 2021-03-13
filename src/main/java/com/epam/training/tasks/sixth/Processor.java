@@ -1,5 +1,9 @@
 package com.epam.training.tasks.sixth;
 
+import com.epam.training.tasks.sixth.entities.Lot;
+import com.epam.training.tasks.sixth.entities.Participant;
+import com.epam.training.tasks.sixth.wrappers.Lots;
+import com.epam.training.tasks.sixth.wrappers.Participants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 
