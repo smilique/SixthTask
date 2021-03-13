@@ -5,7 +5,7 @@ import java.util.List;
 public class Lots {
     private List<Lot> lots;
 
-    public Lots () {
+    public Lots() {
     }
 
     public List<Lot> getLots() {

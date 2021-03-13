@@ -3,19 +3,27 @@ package com.epam.training.tasks.sixth;
 import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
 
-public class Lot implements Runnable{
+public class Lot implements Runnable {
 
     private int id;
     private BigDecimal startPrice;
     private boolean sold;
     private BigDecimal price;
     private double quality;
+    private int leader;
 
     public Lot() {
     }
 
     public double getQuality() {
         return quality;
+    }
+    public void setLeader (Participant participant) {
+        leader = participant.getId();
+    }
+
+    public int getLeader() {
+        return leader;
     }
 
     public synchronized void setQuality(double quality) {

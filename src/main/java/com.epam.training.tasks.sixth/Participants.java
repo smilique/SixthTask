@@ -5,7 +5,7 @@ import java.util.List;
 public class Participants {
     private List<Participant> participants;
 
-    public Participants(){
+    public Participants() {
     }
 
     public List<Participant> getParticipants() {

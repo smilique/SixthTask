@@ -18,7 +18,7 @@ public class Processor {
     private static final String PARTICIPANTS_INPUT = "./src/main/resources/participants.json";
     private static final Logger LOGGER = Logger.getLogger(Processor.class);
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
 
