@@ -32,37 +32,28 @@ public class Processor {
 
         Auction auction = Auction.getInstance();
         auction.setParticipants(participantList);
+        //auction.setLots(lotList);
 
-        List<Future<?>> futures = new ArrayList<>();
+        List<Future<?>> lotFutures = new ArrayList<>();
+        ExecutorService lotExecutor = Executors.newSingleThreadExecutor();
 
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future<?>> participantFutures = new ArrayList<>();
+        ExecutorService participantExecutor = Executors.newFixedThreadPool(participantList.size());
 
         lotList.forEach(lot -> {
-            Future<?> future = executorService.submit(lot);
-            futures.add(future);
+            Future<?> lotFuture = lotExecutor.submit(lot);
+            lotFutures.add(lotFuture);
         });
+        lotExecutor.shutdown();
+        participantExecutor.shutdown();
 
-        futures.forEach(future -> {
+        lotFutures.forEach(future -> {
             try {
                 future.get();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         });
-
-        lotList.forEach(System.out::println);
-        executorService.shutdown();;
-
-//        participantList.forEach(participant -> {
-//           // futures.add
-//            executorService.submit(participant);
-//        });
-
-
-//        ExecutorService executorService = Executors.newFixedThreadPool(lotList.size());
-//        lotList.forEach(lot -> {
-//            executorService.submit(lot);
-//        });
 
     }
 }

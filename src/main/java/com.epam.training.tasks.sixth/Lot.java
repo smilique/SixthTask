@@ -1,6 +1,7 @@
 package com.epam.training.tasks.sixth;
 
 import java.math.BigDecimal;
+import java.util.concurrent.TimeUnit;
 
 public class Lot implements Runnable{
 
@@ -52,10 +53,13 @@ public class Lot implements Runnable{
         return price;
     }
 
+
     @Override
     public void run() {
+        System.out.println("Lot processing started");
         Auction auction = Auction.getInstance();
         try {
+            TimeUnit.MILLISECONDS.sleep(10);
             auction.process(this);
         } catch (InterruptedException e) {
             e.printStackTrace();
