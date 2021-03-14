@@ -28,34 +28,29 @@ public class Processor {
 
         Lots lotWrapper = mapper.readValue(new File(LOT_INPUT), Lots.class);
         List<Lot> lotList = lotWrapper.getLots();
-        System.out.println("Today's auction lots: " + lotList);
+        LOGGER.debug("Today's auction lots: " + lotList);
 
         Participants participantsWrapper = mapper.readValue(new File(PARTICIPANTS_INPUT), Participants.class);
         List<Participant> participantList = participantsWrapper.getParticipants();
-        System.out.println("Auction participants: " + participantList);
+        LOGGER.debug("Auction participants: " + participantList);
 
         Auction auction = Auction.getInstance();
         auction.setParticipants(participantList);
-        //auction.setLots(lotList);
 
         List<Future<?>> lotFutures = new ArrayList<>();
         ExecutorService lotExecutor = Executors.newSingleThreadExecutor();
-
-        List<Future<?>> participantFutures = new ArrayList<>();
-        ExecutorService participantExecutor = Executors.newFixedThreadPool(participantList.size());
 
         lotList.forEach(lot -> {
             Future<?> lotFuture = lotExecutor.submit(lot);
             lotFutures.add(lotFuture);
         });
         lotExecutor.shutdown();
-        participantExecutor.shutdown();
 
         lotFutures.forEach(future -> {
             try {
                 future.get();
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                LOGGER.error(e.getMessage(),e);
             }
         });
 

@@ -28,9 +28,13 @@ public class Auction {
     private final Lock participantLock = new ReentrantLock();
 
     private final Semaphore lotSemaphore = new Semaphore(1);
-    private final Lock lock = new ReentrantLock();
-    private final static double BASE_INCREMENT = 1.1;
+    private final Lock lotLock = new ReentrantLock();
+    private final static double BASE_INCREMENT = 0.1;
     private final static double RESERVE_COEFFICIENT = 0.7;
+    private final static int TIMEOUT = 500;
+
+    private Auction() {
+    }
 
     public static Auction getInstance() {
         Auction localInstance = INSTANCE.get();
@@ -45,16 +49,11 @@ public class Auction {
         return localInstance;
     }
 
-    private Auction() {
-    }
-
     public void process(Lot lot) throws InterruptedException {
-
         lotSemaphore.acquire();
-        lock.lock();
+        lotLock.lock();
 
         currentLot = lot;
-
         int totalParticipants = participantsPresent();
 
         while (totalParticipants > 1) {
@@ -78,20 +77,56 @@ public class Auction {
             LOGGER.info("The winner is id: " + leaderId);
             buy();
         } else {
+            System.out.println("Lot " + lot.getId() + " is off the auction!");
             LOGGER.info("Nobody wants to buy lot id: " + currentLot.getId());
         }
+
         resetParticipants();
         lotSemaphore.release();
-        lock.unlock();
+        lotLock.unlock();
+    }
+
+    public void process(Participant participant) throws InterruptedException {
+        participantSemaphore.acquire();
+        participantLock.lock();
+
+        try {
+            TimeUnit.MILLISECONDS.sleep(TIMEOUT);
+            if ((participantsPresent() != 1) && (leaderId != participant.getId())) {
+                int participantId = participant.getId();
+
+                LOGGER.debug("Participant id: " + participantId);
+
+                if (isBuying() && isSolvent(participant) && isInterested(participant)) {
+                    LOGGER.debug("Wants to buy lot id: " + currentLot.getId());
+                    LOGGER.debug("Participant id: " + participantId + " is solvent");
+                    System.out.print("Participant id: " + participantId);
+
+                    bid();
+                    leaderId = participantId;
+                } else {
+                    LOGGER.debug("Participant id: " + participantId + " won't buy lot id: " + currentLot.getId());
+
+                    participant.setInterested(false);
+                }
+            }
+        } finally {
+            participantSemaphore.release();
+            participantLock.unlock();
+        }
     }
 
     private void buy() {
         Participant winner = participants.get(leaderId - 1);
         BigDecimal funds = winner.getFunds();
-        BigDecimal price = currentLot.getPrice();
+        BigDecimal price = currentLot.getCurrentPrice();
         BigDecimal newFunds = funds.subtract(price);
         winner.setFunds(newFunds);
-        LOGGER.info(newFunds);
+
+        System.out.println("Participant id: " + leaderId
+                + " won lot id: " + currentLot.getId()
+                + " with price: " + price
+                + " | rest of funds: " + newFunds + "\n");
     }
 
     private int participantsPresent() {
@@ -113,41 +148,16 @@ public class Auction {
         this.participants = participants;
     }
 
-
-
-    public void process(Participant participant) throws InterruptedException {
-        participantSemaphore.acquire();
-        participantLock.lock();
-        try {
-            TimeUnit.MILLISECONDS.sleep(30);
-            if ((participantsPresent() != 1) && (leaderId != participant.getId())) {
-                int participantId = participant.getId();
-                LOGGER.debug("Participant id: " + participantId);
-                boolean buying = isBuying();
-                boolean solvent = isParticipantSolvent(participant);
-                boolean interested = participant.isInterested();
-                if (buying && solvent && interested) {
-                    LOGGER.debug("Wants to buy lot id: " + currentLot.getId() + " - " + buying);
-                    LOGGER.debug("Participant id: " + participantId + " is solvent? - " + solvent);
-                    bid();
-                    leaderId = participantId;
-                } else {
-                    LOGGER.debug("Participant id: " + participantId + " won't buy lot id: " + currentLot.getId());
-                    participant.setInterested(false);
-                }
-            }
-        } finally {
-            participantSemaphore.release();
-            participantLock.unlock();
-        }
-    }
-
-    private void bid() throws InterruptedException {
-        BigDecimal lastPrice = currentLot.getPrice();
+    private void bid() {
+        BigDecimal startPrice = currentLot.getStartPrice();
+        BigDecimal lastPrice = currentLot.getCurrentPrice();
         BigDecimal bidIncrement = new BigDecimal(BASE_INCREMENT + random.nextDouble() / 10);
-        BigDecimal bidPrice = lastPrice.multiply(bidIncrement, mathContext);
-        currentLot.setPrice(bidPrice);
-        LOGGER.info("Participant rises price from " + lastPrice + " to " + bidPrice);
+        BigDecimal incrementValue = startPrice.multiply(bidIncrement, mathContext);
+        BigDecimal bidPrice = lastPrice.add(incrementValue, mathContext);
+        currentLot.setNewPrice(bidPrice);
+
+        LOGGER.debug("Price changed " + lastPrice + " to " + bidPrice);
+        System.out.println(" rises price from " + lastPrice + " to " + bidPrice);
     }
 
     private boolean isBuying() {
@@ -155,9 +165,18 @@ public class Auction {
         return currentLot.getQuality() > will;
     }
 
-    private boolean isParticipantSolvent(Participant participant) throws InterruptedException {
+    private boolean isSolvent(Participant participant) {
         BigDecimal funds = participant.getFunds();
-        return funds.multiply(new BigDecimal(RESERVE_COEFFICIENT)).compareTo(currentLot.getPrice()) > 0;
+        BigDecimal currentPrice = currentLot.getCurrentPrice();
+        BigDecimal reserve = funds.multiply(new BigDecimal(RESERVE_COEFFICIENT));
+
+        LOGGER.debug("Reserve value: " + reserve);
+
+        return reserve.compareTo(currentPrice) > 0;
+    }
+
+    private boolean isInterested(Participant participant) {
+        return participant.isInterested();
     }
 
 }

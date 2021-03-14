@@ -5,6 +5,7 @@ import com.epam.training.tasks.sixth.entities.Lot;
 import java.util.List;
 
 public class Lots {
+
     private List<Lot> lots;
 
     public Lots() {

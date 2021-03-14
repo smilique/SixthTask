@@ -3,26 +3,22 @@
     {
       "id": 1,
       "startPrice": 30,
-      "quality": 0.5,
-      "sold": false
+      "quality": 0.5
     },
     {
       "id": 2,
       "startPrice": 450,
-      "quality": 0.8,
-      "sold": false
+      "quality": 0.8
     },
     {
       "id": 3,
       "startPrice": 76,
-      "quality": 0.5,
-      "sold": false
+      "quality": 0.5
     },
     {
       "id": 4,
       "startPrice": 4000,
-      "quality": 1,
-      "sold": false
+      "quality": 1
     }
   ]
 }

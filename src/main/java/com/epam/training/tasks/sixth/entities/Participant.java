@@ -1,12 +1,13 @@
 package com.epam.training.tasks.sixth.entities;
 
 import com.epam.training.tasks.sixth.Auction;
+import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
-import java.util.concurrent.TimeUnit;
-
 
 public class Participant implements Runnable {
+
+    private final static Logger LOGGER = Logger.getLogger(Participant.class);
 
     private int id;
     private BigDecimal funds;
@@ -24,18 +25,23 @@ public class Participant implements Runnable {
         return this.id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public void setFunds(BigDecimal funds) {
         this.funds = funds;
     }
 
-
-
     public BigDecimal getFunds() {
-            return this.funds;
+        return this.funds;
+    }
+
+    @Override
+    public void run() {
+        Auction auction = Auction.getInstance();
+        try {
+            auction.process(this);
+        } catch (InterruptedException e) {
+            LOGGER.error(e.getMessage(),e);
+        }
+
     }
 
     @Override
@@ -46,15 +52,5 @@ public class Participant implements Runnable {
                 '}';
     }
 
-    @Override
-    public void run() {
-        Auction auction = Auction.getInstance();
-        try {
-            TimeUnit.MILLISECONDS.sleep(10);
-            auction.process(this);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
-    }
 }

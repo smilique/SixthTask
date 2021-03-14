@@ -1,19 +1,18 @@
 package com.epam.training.tasks.sixth.entities;
 
 import com.epam.training.tasks.sixth.Auction;
+import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 public class Lot implements Runnable {
 
+    private final static Logger LOGGER = Logger.getLogger(Participant.class);
+
     private int id;
     private BigDecimal startPrice;
-    private boolean sold;
-    private BigDecimal price;
+    private BigDecimal currentPrice;
     private double quality;
-    private int leader;
 
     public Lot() {
     }
@@ -21,61 +20,36 @@ public class Lot implements Runnable {
     public double getQuality() {
         return quality;
     }
-    public void setLeader (Participant participant) {
-        leader = participant.getId();
+
+    public BigDecimal getStartPrice() {
+        return startPrice;
     }
 
-    public int getLeader() {
-        return leader;
+    public void setNewPrice(BigDecimal newPrice) {
+        this.currentPrice = newPrice;
     }
 
-    public synchronized void setQuality(double quality) {
-        this.quality = quality;
+    public void setCurrentPrice(BigDecimal currentPrice) {
+        this.currentPrice = currentPrice;
     }
 
-    public synchronized void setId(int id) {
-        this.id = id;
-    }
-
-    public synchronized void setStartPrice(BigDecimal startPrice) {
-        this.startPrice = startPrice;
-        this.price = startPrice;
-    }
-
-    public synchronized void setSold(boolean sold) {
-        this.sold = sold;
-    }
-    Semaphore priceSemaphore = new Semaphore(1);
-    public synchronized void setPrice(BigDecimal price) throws InterruptedException {
-        priceSemaphore.acquire();
-        if (price.compareTo(this.price) > 0) {
-            this.price = price;
-        }
-        priceSemaphore.release();
-    }
-
-    public synchronized int getId() {
+    public int getId() {
         return id;
     }
 
-    public synchronized boolean isSold() {
-        return sold;
+    public BigDecimal getCurrentPrice() {
+        return currentPrice;
     }
-
-    public synchronized BigDecimal getPrice() {
-        return price;
-    }
-
 
     @Override
     public void run() {
-        System.out.println("Lot processing started");
+        System.out.println("Lot id: " + id + " auction started!");
         Auction auction = Auction.getInstance();
+        setCurrentPrice(startPrice);
         try {
-            TimeUnit.MILLISECONDS.sleep(10);
             auction.process(this);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(),e);
         }
     }
 
@@ -84,8 +58,7 @@ public class Lot implements Runnable {
         return "Lot{" +
                 "id=" + id +
                 ", startPrice=" + startPrice +
-                ", sold=" + sold +
-                ", price=" + price +
+                ", price=" + currentPrice +
                 ", value=" + quality +
                 '}';
     }
